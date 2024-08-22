@@ -1,4 +1,22 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 @tailwind variants;
+/* app.postcss */
+
+/* Set light theme */
+:root {
+    --skeleton-color-primary: #000; /* Black for light mode */
+    --skeleton-color-secondary: #fff; /* White for light mode */
+    --skeleton-background: #f7f7f7; /* Light background */
+}
+
+/* Set dark theme */
+@media (prefers-color-scheme: dark) {
+    :root {
+        --skeleton-color-primary: #fff; /* White for dark mode */
+        --skeleton-color-secondary: #000; /* Black for dark mode */
+        --skeleton-background: #1a1a1a; /* Dark background */
+    }
+}
