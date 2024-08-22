@@ -3,27 +3,22 @@
     import '../app.postcss';
     import { onMount } from 'svelte';
 
-    
     const supabaseURL = 'https://ckzdwxkzhuehnecisehw.supabase.co';
     const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNremR3eGt6aHVlaG5lY2lzZWh3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjIzODg5MTYsImV4cCI6MjAzNzk2NDkxNn0.lfNhTrJUP9p8W_-dg7t-pxwKPyGVFGssNwuZ7yL6pqs';
-    
-   
     const supabaseClient = createClient(supabaseURL, supabaseKey);
 
-    let Recipes: any[] = []; 
-    let Categories: any[] = []; 
-    
+    let Recipes: any[] = [];
+    let Categories: any[] = [];
+    let categoryMap: Record<number, string> = {}; // Mapping of category ID to name
     let r_recipes_title: string = '';
     let r_recipes_description: string = '';
     let r_recipes_instructions: string = '';
     let r_recipes_preparation_time: number = 0;
     let r_recipes_cooking_time: number = 0;
     let r_recipes_servings: number = 0;
-    let selectedCategory: number | null = null; 
+    let selectedCategory: number | null = null;
 
-    // Fetch recipes and categories from the database when the component mounts
     onMount(async () => {
-        // Fetch recipes
         const { data: recipesData, error: recipesError } = await supabaseClient
             .from('Recipes')
             .select('r_recipes_title, r_recipes_description, r_recipes_instructions, r_recipes_preparation_time, r_recipes_cooking_time, r_recipes_servings, c_category_id');
@@ -31,22 +26,26 @@
         if (recipesError) {
             console.error('Error fetching recipes:', recipesError);
         } else {
-            Recipes = recipesData; // Update the Recipes variable with the fetched data
+            Recipes = recipesData;
         }
 
-        // Fetch categories
         const { data: categoriesData, error: categoriesError } = await supabaseClient
             .from('Category')
-            .select('*'); 
+            .select('*');
 
         if (categoriesError) {
             console.error('Error fetching categories:', categoriesError);
         } else {
-            Categories = categoriesData; 
-            console.log('Categories:', Categories); 
+            Categories = categoriesData;
+            // Map category IDs to names
+            categoryMap = Categories.reduce((map, category) => {
+                map[category.c_category_id] = category.c_category_name;
+                return map;
+            }, {});
+            console.log('Categories:', Categories);
         }
     });
-    
+
     async function insertRecipe() {
         const { data, error } = await supabaseClient
             .from('Recipes')
@@ -63,21 +62,17 @@
         if (error) {
             console.error('Error inserting recipe:', error);
         } else {
-            if (data) {
-                Recipes = [...Recipes, ...data]; 
-            }
-            
+            Recipes = [...Recipes, ...data];
             r_recipes_title = '';
             r_recipes_description = '';
             r_recipes_instructions = '';
             r_recipes_preparation_time = 0;
             r_recipes_cooking_time = 0;
             r_recipes_servings = 0;
-            selectedCategory = null; 
+            selectedCategory = null;
         }
     }
 
-    // Handle category selection
     function selectCategory(categoryId: number) {
         selectedCategory = categoryId;
     }
@@ -115,16 +110,16 @@
             <td><label>Category</label></td>
             <td>
                 <div>
-                    {#each [1, 2, 3, 4] as categoryId}
+                    {#each Categories as category}
                         <label>
                             <input
                                 type="radio"
                                 name="category"
-                                value={categoryId}
-                                checked={selectedCategory === categoryId}
-                                on:change={() => selectCategory(categoryId)}
+                                value={category.c_category_id}
+                                checked={selectedCategory === category.c_category_id}
+                                on:change={() => selectCategory(category.c_category_id)}
                             />
-                            {categoryId}
+                            {category.c_category_name}
                         </label>
                     {/each}
                 </div>
@@ -132,7 +127,9 @@
         </tr>
         <tr>
             <td colspan="2">
-                <button type="submit">Insert Recipe</button>
+                <button type="submit" style="background-color: white; color: black; border: 2px solid black; padding: 10px 20px; cursor: pointer;">
+                    Insert Recipe
+                </button>
             </td>
         </tr>
     </table>
@@ -148,8 +145,7 @@
                 Prep Time: {recipe.r_recipes_preparation_time} mins <br>
                 Cook Time: {recipe.r_recipes_cooking_time} mins <br>
                 Servings: {recipe.r_recipes_servings} <br>
-                Category ID: {recipe.c_category_id} <br>
-                Category Name: {Categories.find(category => category.c_category_id === recipe.c_category_id)?.c_category_name}
+                Category: {categoryMap[recipe.c_category_id]} <!-- Display the category name -->
             </li>
         {/each}
     </ul>
