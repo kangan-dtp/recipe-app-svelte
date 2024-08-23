@@ -5,11 +5,18 @@
     function navigateToRecipes() {
         goto('/recipes');
     }
+
+    function navigateToMemberSubmissions() {
+        goto('/member_submissions');
+    };
 </script>
 
 <!-- Simple button that navigates to the recipes page on click -->
 <button on:click={navigateToRecipes}>
     Go to Recipes
+</button>
+<button on:click={navigateToMemberSubmissions}>
+    Go to Member Submissions
 </button>
 
 <style>

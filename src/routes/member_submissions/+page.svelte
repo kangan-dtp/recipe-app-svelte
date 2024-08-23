@@ -9,8 +9,7 @@
 
     let Recipes: any[] = [];
     let Categories: any[] = [];
-    
-    let categoryMap: Record<number, string> = {}; // Mapping of category ID to name
+    let categoryMap: Record<number, string> = {}; 
     let r_recipes_title: string = '';
     let r_recipes_description: string = '';
     let r_recipes_instructions: string = '';
@@ -38,23 +37,13 @@
             console.error('Error fetching categories:', categoriesError);
         } else {
             Categories = categoriesData;
-            // Map category IDs to names
+            
             categoryMap = Categories.reduce((map, category) => {
                 map[category.c_category_id] = category.c_category_name;
                 return map;
             }, {});
             console.log('Categories:', Categories);
         }
-
-        const { data: ingredientsData, error: ingredientsError } = await supabaseClient
-            .from('"Recipe Ingredients"')
-            .select('*');
-
-            if (ingredientsError) {
-                console.error('Error fetching ingredients:', ingredientsError);
-            } else {
-                console.log('Recipe Ingredients', ingredientsData);
-            }
     });
 
     async function insertRecipe() {
@@ -73,7 +62,7 @@
         if (error) {
             console.error('Error inserting recipe:', error);
         } else {
-            Recipes = [...Recipes, ...(data ?? [])];
+            Recipes = [...Recipes, ...data];
             r_recipes_title = '';
             r_recipes_description = '';
             r_recipes_instructions = '';
@@ -135,10 +124,6 @@
                     {/each}
                 </div>
             </td>
-        </tr>
-        <tr>
-            <td><label for="r_recipe_ingredients_name">Recipe Ingredients</label></td>
-            <td><input type="text" id="r_recipe_ingredients_name"></td>
         </tr>
         <tr>
             <td colspan="2">
