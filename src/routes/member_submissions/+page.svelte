@@ -9,6 +9,7 @@
 
     let Recipes: any[] = [];
     let Categories: any[] = [];
+    let recipeIngredients: { name: string; quantity: string; unit: string }[] = [];
     let categoryMap: Record<number, string> = {}; 
     let r_recipes_title: string = '';
     let r_recipes_description: string = '';
@@ -17,6 +18,9 @@
     let r_recipes_cooking_time: number = 0;
     let r_recipes_servings: number = 0;
     let selectedCategory: number | null = null;
+    let ri_recipe_ingredients_name: string = '';
+    let ri_recipe_ingredients_quantity: number = 0;
+    let ri_recipe_ingredients_unit: string = '';
 
     onMount(async () => {
         const { data: recipesData, error: recipesError } = await supabaseClient
@@ -27,6 +31,7 @@
             console.error('Error fetching recipes:', recipesError);
         } else {
             Recipes = recipesData;
+            console.log('Recipes:', Recipes);  // Only logging the fetched recipes
         }
 
         const { data: categoriesData, error: categoriesError } = await supabaseClient
@@ -37,12 +42,22 @@
             console.error('Error fetching categories:', categoriesError);
         } else {
             Categories = categoriesData;
-            
             categoryMap = Categories.reduce((map, category) => {
                 map[category.c_category_id] = category.c_category_name;
                 return map;
             }, {});
-            console.log('Categories:', Categories);
+            console.log('Categories:', Categories);  // Only logging the fetched categories
+        }
+
+        const { data: recipeIngredientsData, error: recipeIngredientsError } = await supabaseClient
+            .from('Recipe Ingredients')
+            .select('*');
+
+        if (recipeIngredientsError) {
+            console.error('Error fetching recipe ingredients:', recipeIngredientsError);
+        } else {
+            recipeIngredients = recipeIngredientsData;
+            console.log('Recipe Ingredients:', recipeIngredients);  // Only logging the fetched recipe ingredients
         }
     });
 
@@ -75,6 +90,11 @@
 
     function selectCategory(categoryId: number) {
         selectedCategory = categoryId;
+    }
+
+    function addRecipeIngredients() {
+        // Push an empty object to the array representing a new row
+        recipeIngredients = [...recipeIngredients, { name: '', quantity: '', unit: '' }];
     }
 </script>
 
@@ -132,23 +152,35 @@
                 </button>
             </td>
         </tr>
+        <tr>
+            <td colspan="2">
+                <button
+                    type="button"
+                    style="background-color: white; color: black; border: 2px solid black; padding: 10px 20px; cursor: pointer;"
+                    on:click={addRecipeIngredients}>
+                    Add More Recipe Ingredients
+                </button>
+            </td>
+        </tr>
     </table>
 </form>
-
-{#if Recipes.length > 0}
-    <h2>Recipes List</h2>
-    <ul>
-        {#each Recipes as recipe}
-            <li>
-                <strong>{recipe.r_recipes_title}</strong> - {recipe.r_recipes_description} <br>
-                Instructions: {recipe.r_recipes_instructions} <br>
-                Prep Time: {recipe.r_recipes_preparation_time} mins <br>
-                Cook Time: {recipe.r_recipes_cooking_time} mins <br>
-                Servings: {recipe.r_recipes_servings} <br>
-                Category: {categoryMap[recipe.c_category_id]} <!-- Display the category name -->
-            </li>
+<form id="recipe_ingredients_form">
+    <table id="recipe_ingredients_table">
+        <tr>
+            <th>Ingredient Name</th>
+            <th>Quantity</th>
+            <th>Unit</th>
+        </tr>
+        {#each recipeIngredients as ingredient, index}
+            <tr>
+                <td><input type="text" bind:value={ingredient.name} placeholder="Ingredient Name"></td>
+                <td><input type="number" bind:value={ingredient.quantity} placeholder="Quantity"></td>
+                <td><input type="text" bind:value={ingredient.unit} placeholder="Unit"></td>
+            </tr>
         {/each}
-    </ul>
-{:else}
-    <p>No Recipes</p>
-{/if}
+    </table>
+    
+</form>
+
+
+
