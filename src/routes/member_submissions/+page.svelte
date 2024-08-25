@@ -2,6 +2,7 @@
     import { createClient } from '@supabase/supabase-js';
     import '../../app.postcss';
     import { onMount } from 'svelte';
+    import { handleAddRecipeIngredients } from './submission_functions';
 
     const supabaseURL = 'https://ckzdwxkzhuehnecisehw.supabase.co';
     const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNremR3eGt6aHVlaG5lY2lzZWh3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjIzODg5MTYsImV4cCI6MjAzNzk2NDkxNn0.lfNhTrJUP9p8W_-dg7t-pxwKPyGVFGssNwuZ7yL6pqs';
@@ -31,7 +32,7 @@
             console.error('Error fetching recipes:', recipesError);
         } else {
             Recipes = recipesData;
-            console.log('Recipes:', Recipes);  // Only logging the fetched recipes
+            console.log('Recipes:', Recipes);  //bug fix...if database drops out
         }
 
         const { data: categoriesData, error: categoriesError } = await supabaseClient
@@ -46,7 +47,7 @@
                 map[category.c_category_id] = category.c_category_name;
                 return map;
             }, {});
-            console.log('Categories:', Categories);  // Only logging the fetched categories
+            console.log('Categories:', Categories);  //bug fix...if database drops out
         }
 
         const { data: recipeIngredientsData, error: recipeIngredientsError } = await supabaseClient
@@ -57,7 +58,7 @@
             console.error('Error fetching recipe ingredients:', recipeIngredientsError);
         } else {
             recipeIngredients = recipeIngredientsData;
-            console.log('Recipe Ingredients:', recipeIngredients);  // Only logging the fetched recipe ingredients
+            console.log('Recipe Ingredients:', recipeIngredients);  //bug fix...if database drops out
         }
     });
 
@@ -92,10 +93,7 @@
         selectedCategory = categoryId;
     }
 
-    function addRecipeIngredients() {
-        // Push an empty object to the array representing a new row
-        recipeIngredients = [...recipeIngredients, { name: '', quantity: '', unit: '' }];
-    }
+    
 </script>
 
 <h1>Recipes</h1>
@@ -156,10 +154,17 @@
             <td colspan="2">
                 <button
                     type="button"
-                    style="background-color: white; color: black; border: 2px solid black; padding: 10px 20px; cursor: pointer;"
-                    on:click={addRecipeIngredients}>
-                    Add More Recipe Ingredients
-                </button>
+                     style="background-color: white; color: black; border: 2px solid black; padding: 10px 20px; cursor: pointer;"
+                        on:click={() => {
+                             const { updatedIngredients, alertMessage } = handleAddRecipeIngredients(recipeIngredients);
+                                if (alertMessage) {
+                                     alert(alertMessage); 
+                     }
+                             recipeIngredients = updatedIngredients; 
+                }}>
+    Add More Recipe Ingredients
+</button>
+
             </td>
         </tr>
     </table>
@@ -179,8 +184,4 @@
             </tr>
         {/each}
     </table>
-    
 </form>
-
-
-
