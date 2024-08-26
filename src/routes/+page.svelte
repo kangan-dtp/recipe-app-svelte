@@ -1,7 +1,7 @@
 <script>
-    import { goto } from '$app/navigation'; // Import the goto function
+    import { goto } from '$app/navigation'; 
     import '../app.postcss';
-    // Function to handle button click and navigate to the recipes page
+  
     function navigateToRecipes() {
         goto('/recipes');
     }
@@ -11,7 +11,6 @@
     };
 </script>
 
-<!-- Simple button that navigates to the recipes page on click -->
 <button on:click={navigateToRecipes}>
     Go to Recipes
 </button>
@@ -19,8 +18,7 @@
     Go to Member Submissions
 </button>
 
-<style>
-    /* Style the button */
+<style> 
     button {
         padding: 10px 20px;
         background-color: #4CAF50;

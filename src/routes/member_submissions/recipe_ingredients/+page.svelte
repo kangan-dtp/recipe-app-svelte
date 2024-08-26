@@ -2,8 +2,8 @@
     import { createClient } from '@supabase/supabase-js';
     import '../../app.postcss';
     import { onMount } from 'svelte';
-    import { handleAddRecipeIngredients } from './submission_functions';
-    import { goto } from '$app/navigation'; 
+    import { handleAddRecipeIngredients } from '../submission_functions';
+    
     const supabaseURL = 'https://ckzdwxkzhuehnecisehw.supabase.co';
     const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNremR3eGt6aHVlaG5lY2lzZWh3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjIzODg5MTYsImV4cCI6MjAzNzk2NDkxNn0.lfNhTrJUP9p8W_-dg7t-pxwKPyGVFGssNwuZ7yL6pqs';
     const supabaseClient = createClient(supabaseURL, supabaseKey);
@@ -80,7 +80,7 @@
     } else {
         const recipeId = (data as { id: number })?.id;
         console.log('Recipe created with ID:', recipeId);
-        // clears recipe fields will be required for eventual recipe submission handling
+        // Clear recipe fields
         r_recipes_title = '';
         r_recipes_description = '';
         r_recipes_instructions = '';
@@ -96,11 +96,12 @@
     function selectCategory(categoryId: number) {
         selectedCategory = categoryId;
     }
-    async function handleRecipeSubmission() {    
+    async function handleRecipeSubmission() {
+    
     const recipeId = await createRecipe();
 
     if (recipeId) {
-        console.log('Recipe ID:', recipeId); //bug fix...if database drops out
+        
         await addRecipeIngredientsToDatabase(recipeId);
     }
 }
@@ -119,15 +120,10 @@ async function addRecipeIngredientsToDatabase(recipeId: number) {
     if (error) {
         console.error('Error inserting recipe ingredients:', error);
     } else {
-        console.log('Recipe ingredients added successfully');
-        // Optionally clear ingredients or show a success message
+        console.log('Recipe ingredients added successfully');        
         recipeIngredients = [];
     }
 }
-function navigateToRecipeIngredients() {
-    goto('/member_submissions/recipe_ingredients');
-}
-
     
 </script>
 
@@ -185,9 +181,6 @@ function navigateToRecipeIngredients() {
                 </button>
             </td>
         </tr>
-        <button on:click={navigateToRecipeIngredients}>
-            Go to Recipe Ingredients
-        </button>
         
         <p>Click The Add More Recipe Ingredients To Insert A New Row</p>
         

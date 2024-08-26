@@ -10,7 +10,7 @@
     let Recipes: any[] = [];
     let Categories: any[] = [];
     
-    let categoryMap: Record<number, string> = {}; // Mapping of category ID to name
+    let categoryMap: Record<number, string> = {}; 
     let r_recipes_title: string = '';
     let r_recipes_description: string = '';
     let r_recipes_instructions: string = '';
@@ -38,7 +38,7 @@
             console.error('Error fetching categories:', categoriesError);
         } else {
             Categories = categoriesData;
-            // Map category IDs to names
+            
             categoryMap = Categories.reduce((map, category) => {
                 map[category.c_category_id] = category.c_category_name;
                 return map;
@@ -160,7 +160,7 @@
                 Prep Time: {recipe.r_recipes_preparation_time} mins <br>
                 Cook Time: {recipe.r_recipes_cooking_time} mins <br>
                 Servings: {recipe.r_recipes_servings} <br>
-                Category: {categoryMap[recipe.c_category_id]} <!-- Display the category name -->
+                Category: {categoryMap[recipe.c_category_id]} 
             </li>
         {/each}
     </ul>
