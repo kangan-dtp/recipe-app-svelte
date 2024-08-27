@@ -1,3 +1,7 @@
+import { createClient } from '@supabase/supabase-js';
+
+const supabaseClient = createClient('your-supabase-url', 'your-supabase-key');
+
 export function addRecipeIngredients(recipeIngredients: { name: string; quantity: string; unit: string }[]): { name: string; quantity: string; unit: string }[] {
     return [...recipeIngredients, { name: '', quantity: '', unit: '' }];
 }
@@ -19,4 +23,24 @@ export function handleAddRecipeIngredients(recipeIngredients: { name: string; qu
         updatedIngredients,
         alertMessage: ''
     };
+}
+export async function addRecipeIngredientsToDatabase(recipeId: number, recipeIngredients: { name: string; quantity: string; unit: string }[]) {
+    const ingredientEntries = recipeIngredients.map(ingredient => ({
+        recipe_id: recipeId, 
+        name: ingredient.name,
+        quantity: ingredient.quantity,
+        unit: ingredient.unit
+    }));
+
+    const { error } = await supabaseClient
+        .from('Recipe Ingredients')
+        .insert(ingredientEntries);
+
+    if (error) {
+        console.error('Error inserting recipe ingredients:', error);
+    } else {
+        console.log('Recipe ingredients added successfully');
+        // Optionally clear ingredients or show a success message
+        recipeIngredients = [];
+    }
 }

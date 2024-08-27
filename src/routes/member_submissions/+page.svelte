@@ -2,8 +2,9 @@
     import { createClient } from '@supabase/supabase-js';
     import '../../app.postcss';
     import { onMount } from 'svelte';
-    import { handleAddRecipeIngredients } from './submission_functions';
+    
     import { goto } from '$app/navigation'; 
+	
     const supabaseURL = 'https://ckzdwxkzhuehnecisehw.supabase.co';
     const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNremR3eGt6aHVlaG5lY2lzZWh3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjIzODg5MTYsImV4cCI6MjAzNzk2NDkxNn0.lfNhTrJUP9p8W_-dg7t-pxwKPyGVFGssNwuZ7yL6pqs';
     const supabaseClient = createClient(supabaseURL, supabaseKey);
@@ -96,37 +97,12 @@
     function selectCategory(categoryId: number) {
         selectedCategory = categoryId;
     }
-    async function handleRecipeSubmission() {    
-    const recipeId = await createRecipe();
+    
 
-    if (recipeId) {
-        console.log('Recipe ID:', recipeId); //bug fix...if database drops out
-        await addRecipeIngredientsToDatabase(recipeId);
-    }
-}
-async function addRecipeIngredientsToDatabase(recipeId: number) {
-    const ingredientEntries = recipeIngredients.map(ingredient => ({
-        recipe_id: recipeId, 
-        name: ingredient.name,
-        quantity: ingredient.quantity,
-        unit: ingredient.unit
-    }));
-
-    const { error } = await supabaseClient
-        .from('Recipe Ingredients')
-        .insert(ingredientEntries);
-
-    if (error) {
-        console.error('Error inserting recipe ingredients:', error);
-    } else {
-        console.log('Recipe ingredients added successfully');
-        // Optionally clear ingredients or show a success message
-        recipeIngredients = [];
-    }
-}
 function navigateToRecipeIngredients() {
     goto('/member_submissions/recipe_ingredients');
 }
+
 
     
 </script>
@@ -160,7 +136,7 @@ function navigateToRecipeIngredients() {
             <td><input type="number" id="r_recipes_servings" bind:value={r_recipes_servings} required></td>
         </tr>
         <tr>
-            <td><label>Category</label></td>
+            <td><label for="category">Category</label></td>
             <td>
                 <div>
                     {#each Categories as category}
@@ -180,58 +156,12 @@ function navigateToRecipeIngredients() {
         </tr>
         <tr>
             <td colspan="2">
-                <button type="submit" style="background-color: white; color: black; border: 2px solid black; padding: 10px 20px; cursor: pointer;">
-                    Create Recipe
-                </button>
+                <button id="cr" on:click={navigateToRecipeIngredients}>
+                    Creat Recipe & Insert Ingredients
+                </button>       
             </td>
         </tr>
-        <button on:click={navigateToRecipeIngredients}>
-            Go to Recipe Ingredients
-        </button>
         
-        <p>Click The Add More Recipe Ingredients To Insert A New Row</p>
-        
-        <tr>
-            <td colspan="2">
-                <button
-                    type="button"
-                     style="background-color: white; color: black; border: 2px solid black; padding: 10px 20px; cursor: pointer;"
-                        on:click={() => {
-                             const { updatedIngredients, alertMessage } = handleAddRecipeIngredients(recipeIngredients);
-                                if (alertMessage) {
-                                     alert(alertMessage); 
-                     }
-                             recipeIngredients = updatedIngredients; 
-                }}>
-                    Add More Recipe Ingredients
-                </button>
-            </td>
-        </tr>
-        <p>Click On The "Recipe Submission" Button When You Have Included All Of Your Recipes Ingredients</p>
-        <tr>
-            <td colspan="2">
-                <button
-                    type="button"
-                    style="background-color: white; color: black; border: 2px solid black; padding: 10px 20px; cursor: pointer;"
-                    on:click={handleRecipeSubmission}
-                >Recipe Submission</button>
-            </td>
-        </tr>
-    </table>
+       </table>
 </form>
-<form id="recipe_ingredients_form">
-    <table id="recipe_ingredients_table">
-        <tr>
-            <th>Ingredient Name</th>
-            <th>Quantity</th>
-            <th>Unit</th>
-        </tr>
-        {#each recipeIngredients as ingredient, index}
-            <tr>
-                <td><input type="text" bind:value={ingredient.name} placeholder="Ingredient Name"></td>
-                <td><input type="number" bind:value={ingredient.quantity} placeholder="Quantity"></td>
-                <td><input type="text" bind:value={ingredient.unit} placeholder="Unit"></td>
-            </tr>
-        {/each}
-    </table>
-</form>
+

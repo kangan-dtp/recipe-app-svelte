@@ -118,7 +118,7 @@
             <td><input type="number" id="r_recipes_servings" bind:value={r_recipes_servings} required></td>
         </tr>
         <tr>
-            <td><label>Category</label></td>
+            <td><label for="category">Category</label></td>
             <td>
                 <div>
                     {#each Categories as category}

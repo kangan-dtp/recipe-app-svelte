@@ -1,25 +1,23 @@
-<script lang="ts">
-    import { createClient } from '@supabase/supabase-js';
-    import '../../app.postcss';
-    import { onMount } from 'svelte';
-    import { handleAddRecipeIngredients } from '../submission_functions';
-    
-    const supabaseURL = 'https://ckzdwxkzhuehnecisehw.supabase.co';
-    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNremR3eGt6aHVlaG5lY2lzZWh3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjIzODg5MTYsImV4cCI6MjAzNzk2NDkxNn0.lfNhTrJUP9p8W_-dg7t-pxwKPyGVFGssNwuZ7yL6pqs';
-    const supabaseClient = createClient(supabaseURL, supabaseKey);
+   <script lang='ts'>
+   
+        import { onMount } from 'svelte';
+        import { createClient } from '@supabase/supabase-js';
 
-    let Recipes: any[] = [];
-    let Categories: any[] = [];
-    let recipeIngredients: { name: string; quantity: string; unit: string }[] = [];
-    let categoryMap: Record<number, string> = {}; 
-    let r_recipes_title: string = '';
-    let r_recipes_description: string = '';
-    let r_recipes_instructions: string = '';
-    let r_recipes_preparation_time: number = 0;
-    let r_recipes_cooking_time: number = 0;
-    let r_recipes_servings: number = 0;
-    let selectedCategory: number | null = null;
-    
+        const supabaseURL = 'https://ckzdwxkzhuehnecisehw.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNremR3eGt6aHVlaG5lY2lzZWh3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjIzODg5MTYsImV4cCI6MjAzNzk2NDkxNn0.lfNhTrJUP9p8W_-dg7t-pxwKPyGVFGssNwuZ7yL6pqs';
+        const supabaseClient = createClient(supabaseURL, supabaseKey);
+
+        let Recipes: any[] = [];
+        let Categories: any[] = [];
+        let recipeIngredients: { name: string; quantity: string; unit: string }[] = [];
+        let categoryMap: Record<number, string> = {}; 
+        let r_recipes_title: string = '';
+        let r_recipes_description: string = '';
+        let r_recipes_instructions: string = '';
+        let r_recipes_preparation_time: number = 0;
+        let r_recipes_cooking_time: number = 0;
+        let r_recipes_servings: number = 0;
+        let selectedCategory: number | null = null;    
 
     onMount(async () => {
         const { data: recipesData, error: recipesError } = await supabaseClient
@@ -59,85 +57,22 @@
             console.log('Recipe Ingredients:', recipeIngredients);  //bug fix...if database drops out
         }
     });
-
-    async function createRecipe() {
-    const { data, error } = await supabaseClient
-        .from('Recipes')
-        .insert([{
-            r_recipes_title,
-            r_recipes_description,
-            r_recipes_instructions,
-            r_recipes_preparation_time,
-            r_recipes_cooking_time,
-            r_recipes_servings,
-            c_category_id: selectedCategory
-        }])
-        .single();
-
-    if (error) {
-        console.error('Error inserting recipe:', error);
-        return null;
-    } else {
-        const recipeId = (data as { id: number })?.id;
-        console.log('Recipe created with ID:', recipeId);
-        // Clear recipe fields
-        r_recipes_title = '';
-        r_recipes_description = '';
-        r_recipes_instructions = '';
-        r_recipes_preparation_time = 0;
-        r_recipes_cooking_time = 0;
-        r_recipes_servings = 0;
-        selectedCategory = null;
-        return recipeId;
-    }
-}
-
-
-    function selectCategory(categoryId: number) {
-        selectedCategory = categoryId;
-    }
-    async function handleRecipeSubmission() {
     
-    const recipeId = await createRecipe();
-
-    if (recipeId) {
-        
-        await addRecipeIngredientsToDatabase(recipeId);
+    function handleRecipeSubmission() {
+        console.log(recipeIngredients);
     }
-}
-async function addRecipeIngredientsToDatabase(recipeId: number) {
-    const ingredientEntries = recipeIngredients.map(ingredient => ({
-        recipe_id: recipeId, 
-        name: ingredient.name,
-        quantity: ingredient.quantity,
-        unit: ingredient.unit
-    }));
-
-    const { error } = await supabaseClient
-        .from('Recipe Ingredients')
-        .insert(ingredientEntries);
-
-    if (error) {
-        console.error('Error inserting recipe ingredients:', error);
-    } else {
-        console.log('Recipe ingredients added successfully');        
-        recipeIngredients = [];
-    }
-}
     
 </script>
-
-<h1>Recipes</h1>
 
 <form on:submit|preventDefault={createRecipe}>
     <table>
         <tr>
             <td><label for="r_recipes_title">Recipe Title</label></td>
-            <td><input type="text" id="r_recipes_title" bind:value={r_recipes_title} required></td>
+            <td>{r_recipes_title}</td>
         </tr>
         <tr>
             <td><label for="r_recipes_description">Recipe Description</label></td>
-            <td><input type="text" id="r_recipes_description" bind:value={r_recipes_description} required></td>
+            <td>{r_recipes_description}</td>
         </tr>
         <tr>
             <td><label for="r_recipes_instructions">Instructions</label></td>
@@ -156,7 +91,7 @@ async function addRecipeIngredientsToDatabase(recipeId: number) {
             <td><input type="number" id="r_recipes_servings" bind:value={r_recipes_servings} required></td>
         </tr>
         <tr>
-            <td><label>Category</label></td>
+            <td><label for="category">Category</label></td>
             <td>
                 <div>
                     {#each Categories as category}
@@ -174,32 +109,13 @@ async function addRecipeIngredientsToDatabase(recipeId: number) {
                 </div>
             </td>
         </tr>
-        <tr>
-            <td colspan="2">
-                <button type="submit" style="background-color: white; color: black; border: 2px solid black; padding: 10px 20px; cursor: pointer;">
-                    Create Recipe
-                </button>
-            </td>
-        </tr>
-        
+</table>
+</form>
+<form id="recipe_ingredients_form">
+    <table id="recipe_ingredients_table">
         <p>Click The Add More Recipe Ingredients To Insert A New Row</p>
         
-        <tr>
-            <td colspan="2">
-                <button
-                    type="button"
-                     style="background-color: white; color: black; border: 2px solid black; padding: 10px 20px; cursor: pointer;"
-                        on:click={() => {
-                             const { updatedIngredients, alertMessage } = handleAddRecipeIngredients(recipeIngredients);
-                                if (alertMessage) {
-                                     alert(alertMessage); 
-                     }
-                             recipeIngredients = updatedIngredients; 
-                }}>
-                    Add More Recipe Ingredients
-                </button>
-            </td>
-        </tr>
+        
         <p>Click On The "Recipe Submission" Button When You Have Included All Of Your Recipes Ingredients</p>
         <tr>
             <td colspan="2">
@@ -209,11 +125,7 @@ async function addRecipeIngredientsToDatabase(recipeId: number) {
                     on:click={handleRecipeSubmission}
                 >Recipe Submission</button>
             </td>
-        </tr>
-    </table>
-</form>
-<form id="recipe_ingredients_form">
-    <table id="recipe_ingredients_table">
+        </tr>    
         <tr>
             <th>Ingredient Name</th>
             <th>Quantity</th>
@@ -227,4 +139,7 @@ async function addRecipeIngredientsToDatabase(recipeId: number) {
             </tr>
         {/each}
     </table>
-</form>
+</form> <p>Click The Add More Recipe Ingredients To Insert A New Row</p>
+        
+        
+       
