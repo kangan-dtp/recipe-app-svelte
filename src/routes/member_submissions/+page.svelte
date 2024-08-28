@@ -103,7 +103,10 @@ function navigateToRecipeIngredients() {
     goto('/member_submissions/recipe_ingredients');
 }
 
-
+function handleButtonClick() {
+    createRecipe();
+    navigateToRecipeIngredients();
+  }
     
 </script>
 
@@ -156,8 +159,8 @@ function navigateToRecipeIngredients() {
         </tr>
         <tr>
             <td colspan="2">
-                <button id="cr" on:click={navigateToRecipeIngredients}>
-                    Creat Recipe & Insert Ingredients
+                <button id="cr" on:click={handleButtonClick}>
+                    Create Recipe & Insert Ingredients
                 </button>       
             </td>
         </tr>

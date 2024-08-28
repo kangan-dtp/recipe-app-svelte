@@ -11,6 +11,7 @@
         let Categories: any[] = [];
         let recipeIngredients: { name: string; quantity: string; unit: string }[] = [];
         let categoryMap: Record<number, string> = {}; 
+        let r_recipes_id: number = 0;
         let r_recipes_title: string = '';
         let r_recipes_description: string = '';
         let r_recipes_instructions: string = '';
@@ -20,15 +21,26 @@
         let selectedCategory: number | null = null;    
 
     onMount(async () => {
-        const { data: recipesData, error: recipesError } = await supabaseClient
+       
+        const { data: recentRecipeData, error: recentRecipeError } = await supabaseClient
             .from('Recipes')
-            .select('r_recipes_title, r_recipes_description, r_recipes_instructions, r_recipes_preparation_time, r_recipes_cooking_time, r_recipes_servings, c_category_id');
+            .select('*')
+            .order('r_recipes_created_at', { ascending: false })
+            .limit(1);
 
-        if (recipesError) {
-            console.error('Error fetching recipes:', recipesError);
-        } else {
-            Recipes = recipesData;
-            console.log('Recipes:', Recipes);  //bug fix...if database drops out
+        if (recentRecipeError) {
+            console.error('Error fetching the most recent recipe:', recentRecipeError);
+        } else if (recentRecipeData && recentRecipeData.length > 0) {
+            const recentRecipe = recentRecipeData[0];
+            r_recipes_id = recentRecipe.r_recipes_id;
+            r_recipes_title = recentRecipe.r_recipes_title;
+            r_recipes_description = recentRecipe.r_recipes_description;
+            r_recipes_instructions = recentRecipe.r_recipes_instructions;
+            r_recipes_preparation_time = recentRecipe.r_recipes_preparation_time;
+            r_recipes_cooking_time = recentRecipe.r_recipes_cooking_time;
+            r_recipes_servings = recentRecipe.r_recipes_servings;
+            selectedCategory = recentRecipe.c_category_id;
+            console.log('Most Recent Recipe:', recentRecipe);
         }
 
         const { data: categoriesData, error: categoriesError } = await supabaseClient
@@ -43,29 +55,73 @@
                 map[category.c_category_id] = category.c_category_name;
                 return map;
             }, {});
-            console.log('Categories:', Categories);  //bug fix...if database drops out
+            console.log('Categories:', Categories);  // bug fix...if database drops out
         }
 
         const { data: recipeIngredientsData, error: recipeIngredientsError } = await supabaseClient
-            .from('Recipe Ingredients')
+            .from('recipe_ingredients')
             .select('*');
 
         if (recipeIngredientsError) {
             console.error('Error fetching recipe ingredients:', recipeIngredientsError);
         } else {
             recipeIngredients = recipeIngredientsData;
-            console.log('Recipe Ingredients:', recipeIngredients);  //bug fix...if database drops out
+            console.log('recipe_ingredients:', recipeIngredients);  // bug fix...if database drops out
         }
     });
-    
-    function handleRecipeSubmission() {
-        console.log(recipeIngredients);
+
+    async function handleRecipeSubmission() {
+    try {
+        // Fetch the most recent recipe entry to get its ID
+        const { data: recentRecipeData, error: recentRecipeError } = await supabaseClient
+            .from('Recipes')
+            .select('r_recipes_id')
+            .order('r_recipes_created_at', { ascending: false })
+            .limit(1);
+
+        if (recentRecipeError) {
+            throw new Error('Error fetching the most recent recipe ID');
+        }
+
+        const recentRecipeId = recentRecipeData[0]?.r_recipes_id;
+
+        if (!recentRecipeId) {
+            throw new Error('No recent recipe found.');
+        }        
+        for (const ingredient of recipeIngredients) {
+            const { data, error } = await supabaseClient
+                .from('recipe_ingredients')
+                .insert([
+                    {
+                        r_recipes_id: recentRecipeId,  
+                        ri_recipe_ingredients_name: ingredient.name,
+                        ri_recipe_ingredients_quantity: ingredient.quantity,
+                        ri_recipe_ingredients_unit: ingredient.unit,
+                    },
+                ]);
+
+            if (error) {
+                console.error('Error inserting ingredient:', error);
+            } else {
+                console.log('Inserted ingredient:', data);
+            }
+        }
+        alert('Recipe ingredients submitted successfully!');
+
+    } catch (error) {
+        console.error('Error submitting recipe ingredients:', error);
+        alert('There was an error submitting your recipe ingredients.');
     }
-    
+}
+
 </script>
 
-<form on:submit|preventDefault={createRecipe}>
+<form on:submit|preventDefault>
     <table>
+        <tr>
+            <td><label for="r_recipes_id">Recipe ID</label></td>
+            <td>{r_recipes_id}</td>
+        </tr>
         <tr>
             <td><label for="r_recipes_title">Recipe Title</label></td>
             <td>{r_recipes_title}</td>
@@ -101,7 +157,7 @@
                                 name="category"
                                 value={category.c_category_id}
                                 checked={selectedCategory === category.c_category_id}
-                                on:change={() => selectCategory(category.c_category_id)}
+                                on:change={() => selectedCategory = category.c_category_id}
                             />
                             {category.c_category_name}
                         </label>
@@ -109,27 +165,20 @@
                 </div>
             </td>
         </tr>
-</table>
+    </table>
 </form>
+
 <form id="recipe_ingredients_form">
     <table id="recipe_ingredients_table">
         <p>Click The Add More Recipe Ingredients To Insert A New Row</p>
         
-        
         <p>Click On The "Recipe Submission" Button When You Have Included All Of Your Recipes Ingredients</p>
-        <tr>
-            <td colspan="2">
-                <button
-                    type="button"
-                    style="background-color: white; color: black; border: 2px solid black; padding: 10px 20px; cursor: pointer;"
-                    on:click={handleRecipeSubmission}
-                >Recipe Submission</button>
-            </td>
-        </tr>    
+        
         <tr>
             <th>Ingredient Name</th>
             <th>Quantity</th>
             <th>Unit</th>
+            <th>Actions</th>
         </tr>
         {#each recipeIngredients as ingredient, index}
             <tr>
@@ -138,8 +187,21 @@
                 <td><input type="text" bind:value={ingredient.unit} placeholder="Unit"></td>
             </tr>
         {/each}
-    </table>
-</form> <p>Click The Add More Recipe Ingredients To Insert A New Row</p>
+        </table>       
+            
+                <p>Click the ADD INGEDIENTS until you have entered your ingredients</p>
+                <p>When you are happy with your recipe press SUBMIT RECIPE</p>
+            
+                    <button id="cr"
+                        type="button"                    
+                        on:click={() => recipeIngredients = [...recipeIngredients, { name: '', quantity: '', unit: '' }]}
+                    >ADD INGREDIENTS</button>
+            
+                    <button id="cr"
+                        type="button"                        
+                        on:click={handleRecipeSubmission}
+                    >SUBMIT RECIPE</button>
+                </form>           
+            
         
         
-       
