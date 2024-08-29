@@ -1,0 +1,69 @@
+<script lang="ts">
+    import { onMount } from "svelte";
+    import { createClient } from '@supabase/supabase-js';
+
+    const supabaseURL = 'https://ckzdwxkzhuehnecisehw.supabase.co';
+    const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNremR3eGt6aHVlaG5lY2lzZWh3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjIzODg5MTYsImV4cCI6MjAzNzk2NDkxNn0.lfNhTrJUP9p8W_-dg7t-pxwKPyGVFGssNwuZ7yL6pqs';
+    const supabaseClient = createClient(supabaseURL, supabaseAnonKey);
+
+    let recipe_id: number = 0; 
+    let recipe: any = null;
+    let recipeIngredients: any[] = [];
+
+    onMount(async () => {
+        
+        const { data: recipeData, error: recipeError } = await supabaseClient
+            .from('Recipes')
+            .select('*')
+            .eq('id', recipe_id)
+            .single();
+
+        if (recipeError) {
+            console.error('Error fetching recipe:', recipeError);
+        } else {
+            recipe = recipeData;
+            console.log('Recipe:', recipe);
+        }
+        
+        const { data: ingredientsData, error: ingredientsError } = await supabaseClient
+            .from('Recipe_Ingredients')
+            .select('*')
+            .eq('recipe_id', recipe_id);
+
+        if (ingredientsError) {
+            console.error('Error fetching ingredients:', ingredientsError);
+        } else {
+            recipeIngredients = ingredientsData;
+            console.log('Ingredients:', recipeIngredients);
+        }
+    });
+</script>
+
+<h1>Recipe Details</h1>
+
+{#if recipe}
+    <div>
+        <h2>{recipe.r_recipes_title}</h2>
+        <p><strong>Description:</strong> {recipe.r_recipes_description}</p>
+        <p><strong>Instructions:</strong> {recipe.r_recipes_instructions}</p>
+        <p><strong>Preparation Time:</strong> {recipe.r_recipes_preparation_time} mins</p>
+        <p><strong>Cooking Time:</strong> {recipe.r_recipes_cooking_time} mins</p>
+        <p><strong>Servings:</strong> {recipe.r_recipes_servings}</p>
+        <p><strong>Category ID:</strong> {recipe.c_category_id}</p>
+        
+        <h3>Ingredients</h3>
+        {#if recipeIngredients.length > 0}
+            <ul>
+                {#each recipeIngredients as ingredient}
+                    <li>
+                        {ingredient.name} - {ingredient.quantity} {ingredient.unit}
+                    </li>
+                {/each}
+            </ul>
+        {:else}
+            <p>No ingredients found for this recipe.</p>
+        {/if}
+    </div>
+{:else}
+    <p>No recipe found.</p>
+{/if}

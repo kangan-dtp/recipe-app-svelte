@@ -1,7 +1,10 @@
-   <script lang='ts'>
-   
+   <script lang='ts'>   
         import { onMount } from 'svelte';
         import { createClient } from '@supabase/supabase-js';
+        import { goto } from '$app/navigation';
+        import '../../../app.postcss';
+	    
+        
 
         const supabaseURL = 'https://ckzdwxkzhuehnecisehw.supabase.co';
         const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNremR3eGt6aHVlaG5lY2lzZWh3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjIzODg5MTYsImV4cCI6MjAzNzk2NDkxNn0.lfNhTrJUP9p8W_-dg7t-pxwKPyGVFGssNwuZ7yL6pqs';
@@ -9,7 +12,9 @@
 
         let Recipes: any[] = [];
         let Categories: any[] = [];
-        let recipeIngredients: { name: string; quantity: string; unit: string }[] = [];
+        let recipeIngredients: { name: string; quantity: string; unit: string; }[] = [
+        { name: '', quantity: '', unit: ''}
+        ];     
         let categoryMap: Record<number, string> = {}; 
         let r_recipes_id: number = 0;
         let r_recipes_title: string = '';
@@ -71,8 +76,7 @@
     });
 
     async function handleRecipeSubmission() {
-    try {
-        // Fetch the most recent recipe entry to get its ID
+    try {        
         const { data: recentRecipeData, error: recentRecipeError } = await supabaseClient
             .from('Recipes')
             .select('r_recipes_id')
@@ -96,9 +100,10 @@
                         r_recipes_id: recentRecipeId,  
                         ri_recipe_ingredients_name: ingredient.name,
                         ri_recipe_ingredients_quantity: ingredient.quantity,
-                        ri_recipe_ingredients_unit: ingredient.unit,
+                        ri_recipe_ingredients_unit: ingredient.unit,                        
                     },
                 ]);
+                
 
             if (error) {
                 console.error('Error inserting ingredient:', error);
@@ -106,7 +111,15 @@
                 console.log('Inserted ingredient:', data);
             }
         }
+
         alert('Recipe ingredients submitted successfully!');
+
+        
+        recipeIngredients = [
+            { name: '', quantity: '', unit: '' }
+        ];
+        
+        goto('/member_submissions/completed_member_submissions');
 
     } catch (error) {
         console.error('Error submitting recipe ingredients:', error);
@@ -114,9 +127,39 @@
     }
 }
 
+async function addRecipeIngredientsData(event: MouseEvent) {
+    try {
+        const ingredient = recipeIngredients[0];
+        const { data, error } = await supabaseClient
+            .from('recipe_ingredients')
+            .insert([
+                {
+                    r_recipes_id: r_recipes_id,  
+                    ri_recipe_ingredients_name: ingredient.name,
+                    ri_recipe_ingredients_quantity: ingredient.quantity,
+                    ri_recipe_ingredients_unit: ingredient.unit,                        
+                },
+            ]);
+
+        if (error) {
+            console.error('Error inserting ingredient:', error);
+        } else {
+            console.log('Inserted ingredient:', data);            
+            recipeIngredients = [...recipeIngredients, { name: '', quantity: '', unit: ''}];
+
+            ingredient.name = '';
+            ingredient.quantity = '';
+            ingredient.unit = '';
+        }
+    } catch (error) {
+        console.error('Unexpected error:', error);
+    }
+}
+
+
 </script>
 
-<form on:submit|preventDefault>
+<form method="POST">
     <table>
         <tr>
             <td><label for="r_recipes_id">Recipe ID</label></td>
@@ -168,40 +211,37 @@
     </table>
 </form>
 
-<form id="recipe_ingredients_form">
-    <table id="recipe_ingredients_table">
-        <p>Click The Add More Recipe Ingredients To Insert A New Row</p>
-        
-        <p>Click On The "Recipe Submission" Button When You Have Included All Of Your Recipes Ingredients</p>
-        
-        <tr>
-            <th>Ingredient Name</th>
-            <th>Quantity</th>
-            <th>Unit</th>
-            <th>Actions</th>
-        </tr>
-        {#each recipeIngredients as ingredient, index}
+<form>
+    <table>
+        <tbody>        
             <tr>
-                <td><input type="text" bind:value={ingredient.name} placeholder="Ingredient Name"></td>
-                <td><input type="number" bind:value={ingredient.quantity} placeholder="Quantity"></td>
-                <td><input type="text" bind:value={ingredient.unit} placeholder="Unit"></td>
+                <th>Ingredient Name</th>
+                <th>Quantity</th>
+                <th>Unit</th>
+                <th>Add</th>
             </tr>
-        {/each}
-        </table>       
+    
+            {#if recipeIngredients.length > 0}
+                <tr>
+                    <td><input type="text" bind:value={recipeIngredients[0].name} placeholder="Ingredient Name"></td>
+                    <td><input type="number" bind:value={recipeIngredients[0].quantity} placeholder="Quantity"></td>
+                    <td><input type="text" bind:value={recipeIngredients[0].unit} placeholder="Unit"></td>
+                    <td><button type="button" on:click={addRecipeIngredientsData}>ADD</button></td>
+                </tr>
+            {/if}
+        </tbody>
+        </table>        
+        <p>Click the ADD INGEDIENTS until you have entered your ingredients. When you are happy with your recipe press SUBMIT RECIPE</p>               
             
-                <p>Click the ADD INGEDIENTS until you have entered your ingredients</p>
-                <p>When you are happy with your recipe press SUBMIT RECIPE</p>
+        <button id="cr" type="button" on:click={addRecipeIngredientsData}>ADD INGREDIENTS</button>              
+        <button id="cr" type="button" on:click={handleRecipeSubmission}>SUBMIT RECIPE</button>                   
+                
             
-                    <button id="cr"
-                        type="button"                    
-                        on:click={() => recipeIngredients = [...recipeIngredients, { name: '', quantity: '', unit: '' }]}
-                    >ADD INGREDIENTS</button>
+</form>                           
+           
+
             
-                    <button id="cr"
-                        type="button"                        
-                        on:click={handleRecipeSubmission}
-                    >SUBMIT RECIPE</button>
-                </form>           
+                    
             
         
         
