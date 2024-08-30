@@ -52,8 +52,12 @@
 
         if (ingredientsError) {
             console.error('Error fetching ingredients:', ingredientsError);
-        } else {
-            recipeIngredients = ingredientsData;
+        } else {            
+            recipeIngredients = ingredientsData.filter(ingredient => 
+                ingredient.ri_recipe_ingredients_name && 
+                ingredient.ri_recipe_ingredients_quantity && 
+                ingredient.ri_recipe_ingredients_unit
+            );
             console.log('Ingredients:', recipeIngredients);
         }
     });
