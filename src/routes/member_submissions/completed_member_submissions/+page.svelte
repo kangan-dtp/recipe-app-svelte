@@ -6,16 +6,35 @@
     const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNremR3eGt6aHVlaG5lY2lzZWh3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjIzODg5MTYsImV4cCI6MjAzNzk2NDkxNn0.lfNhTrJUP9p8W_-dg7t-pxwKPyGVFGssNwuZ7yL6pqs';
     const supabaseClient = createClient(supabaseURL, supabaseAnonKey);
 
-    let recipe_id: number = 0; 
+    let recipe_id: number = 0;
     let recipe: any = null;
     let recipeIngredients: any[] = [];
 
-    onMount(async () => {
+    onMount(async () => {        
+        const { data: latestRecipeData, error: latestRecipeError } = await supabaseClient
+            .from('Recipes')
+            .select('r_recipes_id')
+            .order('r_recipes_created_at', { ascending: false })
+            .limit(1)
+            .single();
+
+        if (latestRecipeError) {
+            console.error('Error fetching the latest recipe ID:', latestRecipeError);
+            return;
+        }
+
+        if (latestRecipeData) {
+            recipe_id = latestRecipeData.r_recipes_id;
+            console.log('Latest Recipe ID:', recipe_id);
+        } else {
+            console.error('No recipes found.');
+            return;
+        }
         
         const { data: recipeData, error: recipeError } = await supabaseClient
             .from('Recipes')
             .select('*')
-            .eq('id', recipe_id)
+            .eq('r_recipes_id', recipe_id)
             .single();
 
         if (recipeError) {
@@ -26,9 +45,9 @@
         }
         
         const { data: ingredientsData, error: ingredientsError } = await supabaseClient
-            .from('Recipe_Ingredients')
+            .from('recipe_ingredients')
             .select('*')
-            .eq('recipe_id', recipe_id);
+            .eq('r_recipes_id', recipe_id);
 
         if (ingredientsError) {
             console.error('Error fetching ingredients:', ingredientsError);
@@ -56,7 +75,7 @@
             <ul>
                 {#each recipeIngredients as ingredient}
                     <li>
-                        {ingredient.name} - {ingredient.quantity} {ingredient.unit}
+                        {ingredient.ri_recipe_ingredients_name} - {ingredient.ri_recipe_ingredients_quantity} {ingredient.ri_recipe_ingredients_unit}
                     </li>
                 {/each}
             </ul>
