@@ -39,8 +39,7 @@ export async function addRecipeIngredientsToDatabase(recipeId: number, recipeIng
     if (error) {
         console.error('Error inserting recipe ingredients:', error);
     } else {
-        console.log('Recipe ingredients added successfully');
-        // Optionally clear ingredients or show a success message
+        console.log('Recipe ingredients added successfully');        
         recipeIngredients = [];
     }
 }
