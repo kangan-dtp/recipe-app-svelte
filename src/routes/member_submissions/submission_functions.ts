@@ -47,3 +47,4 @@ export async function addRecipeIngredientsToDatabase(recipeId: number, recipeIng
 export function addRecipeIngredientsRow(): { name: string; quantity: string; unit: string } {
     return { name: '', quantity: '', unit: '' };
 }
+

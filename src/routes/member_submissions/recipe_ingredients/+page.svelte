@@ -9,8 +9,7 @@
         const supabaseURL = 'https://ckzdwxkzhuehnecisehw.supabase.co';
         const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNremR3eGt6aHVlaG5lY2lzZWh3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjIzODg5MTYsImV4cCI6MjAzNzk2NDkxNn0.lfNhTrJUP9p8W_-dg7t-pxwKPyGVFGssNwuZ7yL6pqs';
         const supabaseClient = createClient(supabaseURL, supabaseKey);
-
-        let Recipes: any[] = [];
+        
         let Categories: any[] = [];
         let recipeIngredients: { name: string; quantity: string; unit: string; }[] = [
         { name: '', quantity: '', unit: ''}
