@@ -159,8 +159,8 @@ async function addRecipeIngredientsData(event: MouseEvent) {
 
 </script>
 
-<form method="POST">
-    <table>
+<form class="table-wrap" method="POST">
+    <table class="table">
         <tr>
             <td><label for="r_recipes_id">Recipe ID</label></td>
             <td>{r_recipes_id}</td>
@@ -211,8 +211,8 @@ async function addRecipeIngredientsData(event: MouseEvent) {
     </table>
 </form>
 
-<form>
-    <table>
+<form class="table-wrap">
+    <table class="table">
         <tbody>        
             <tr>
                 <th>Ingredient Name</th>

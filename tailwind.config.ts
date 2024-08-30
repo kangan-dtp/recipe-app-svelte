@@ -20,7 +20,7 @@ const config: Config = {
       themes: {
         preset: [
           {
-            name: 'crimson',
+            name: 'modern',
             enhancements: true,
           },
         ],
