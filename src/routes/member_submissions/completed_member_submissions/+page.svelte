@@ -1,6 +1,7 @@
 <script lang="ts">
     import { onMount } from "svelte";
     import { createClient } from '@supabase/supabase-js';
+    import '../../../app.postcss';
 
     const supabaseURL = 'https://ckzdwxkzhuehnecisehw.supabase.co';
     const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNremR3eGt6aHVlaG5lY2lzZWh3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjIzODg5MTYsImV4cCI6MjAzNzk2NDkxNn0.lfNhTrJUP9p8W_-dg7t-pxwKPyGVFGssNwuZ7yL6pqs';

@@ -1,32 +1,38 @@
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-@tailwind variants;
-/* app.postcss */
 
-/* Set light theme */
-:root {
-    --skeleton-color-primary: #111; /* Black for light mode */
-    --skeleton-color-secondary: #nnn; /* White for light mode */
-    --skeleton-background: #f7f7f7; /* Light background */
+/* Global Container Style for Centering */
+body, html {
+    @apply flex items-center justify-center min-h-screen;
+    background-color: var(--skeleton-background);
+    color: var(--skeleton-color-primary);
+    margin: 0;
+    padding: 0;
 }
 
-/* Set dark theme */
+/* Adjust Container */
+.container {
+    @apply max-w-screen-md mx-auto px-4; /* Limits content width, centers, and adds padding */
+}
+
+/* Modern Theme Colors */
+:root {
+    --skeleton-color-primary: #212529; /* Dark text for light mode */
+    --skeleton-color-secondary: #f8f9fa; /* Light background */
+    --skeleton-background: #e9ecef; /* Very light grey background */
+}
+
+/* Dark Theme */
 @media (prefers-color-scheme: dark) {
     :root {
-        --skeleton-color-primary: #fff; /* White for dark mode */
-        --skeleton-color-secondary: #000; /* Black for dark mode */
-        --skeleton-background: #1a1a1a; /* Dark background */
+        --skeleton-color-primary: #f8f9fa; /* Light text for dark mode */
+        --skeleton-color-secondary: #212529; /* Dark background */
+        --skeleton-background: #343a40; /* Dark grey background */
     }
 }
-/* app.postcss */
 
-/* Style the form to be flexbox and horizontal alignment */
-#recipe_ingredients_form {
-    margin-bottom: 20px; /* Optional, for spacing */
-}
-
+/* Specific Table Styles */
 #recipe_ingredients_table {
     width: 100%;
     border-collapse: collapse;
@@ -51,16 +57,16 @@
     border: 1px solid #ccc;
     border-radius: 3px;
 }
-#cr {
-        padding: 10px 20px;
-        background-color: #4CAF50;
-        color: white;
-        border: none;
-        border-radius: 5px;
-        cursor: pointer;
-    }
 
-    button:hover {
-        background-color: #45a049;
-    }
-    
+#cr {
+    padding: 10px 20px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #45a049;
+}
