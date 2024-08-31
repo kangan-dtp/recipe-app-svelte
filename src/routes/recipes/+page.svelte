@@ -89,7 +89,7 @@
     }
 </script>
 
-<h1>Recipes</h1>
+<h1 class="heading">THIS PAGE TO BE REPLACED WITH SEARCH FUNCTIONS FOR USERS TO SEARCH FOR A RECIPE OF THEIR CHOICE</h1>
 
 <form on:submit|preventDefault={insertRecipe}>
     <table>

@@ -214,10 +214,10 @@ async function addRecipeIngredientsData(event: MouseEvent) {
     <table class="table">
         <tbody>        
             <tr>
-                <th>Ingredient Name</th>
-                <th>Quantity</th>
-                <th>Unit</th>
-                <th>Add</th>
+                <th class="heading">Ingredient Name</th>
+                <th class="heading">Quantity</th>
+                <th class="heading">Unit</th>
+                <th class="heading">Add</th>
             </tr>
     
             {#if recipeIngredients.length > 0}

@@ -10,7 +10,7 @@
         goto('/member_submissions');
     };
 </script>
-
+<h1 class="text-center">Welcome to the Recipe App!</h1>
 <button on:click={navigateToRecipes}>
     Go to Recipes
 </button>

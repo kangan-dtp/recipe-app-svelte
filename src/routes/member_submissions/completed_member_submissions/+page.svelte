@@ -63,7 +63,7 @@
     });
 </script>
 
-<h1>Recipe Details</h1>
+<h1 class="heading">Recipe Details</h1>
 
 {#if recipe}
     <div>
@@ -75,7 +75,7 @@
         <p><strong>Servings:</strong> {recipe.r_recipes_servings}</p>
         <p><strong>Category ID:</strong> {recipe.c_category_id}</p>
         
-        <h3>Ingredients</h3>
+        <h3 class="heading">Ingredients</h3>
         {#if recipeIngredients.length > 0}
             <ul>
                 {#each recipeIngredients as ingredient}
