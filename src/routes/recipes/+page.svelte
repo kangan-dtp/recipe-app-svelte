@@ -2,6 +2,7 @@
     import { createClient } from '@supabase/supabase-js';
     import '../../app.postcss';
     import { goto } from '$app/navigation';
+    
 
     const supabaseURL = import.meta.env.VITE_SUPABASE_URL;
     const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
@@ -30,8 +31,8 @@
     }
 
     function handleViewRecipe(recipeId: number) {
-        // Navigate to a detailed recipe page, passing the recipeId
-        goto(`/selected_recipes/${recipeId}`);
+        
+        goto(`/recipes/${recipeId}`);
     }
 </script>
 
