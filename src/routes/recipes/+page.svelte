@@ -1,115 +1,64 @@
 <script lang="ts">
-    import { onMount } from "svelte";
     import { createClient } from '@supabase/supabase-js';
     import '../../app.postcss';
+    import { goto } from '$app/navigation';
 
     const supabaseURL = import.meta.env.VITE_SUPABASE_URL;
     const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
     const supabaseClient = createClient(supabaseURL, supabaseAnonKey);
 
-    let recipe_id: number = 0;
-    let recipe: any = null;
-    let recipeIngredients: any[] = [];
-    let filteredIngredients: any[] = [];
     let searchQuery: string = '';
+    let searchResults: any[] = [];
 
-    onMount(async () => {        
-        const { data: latestRecipeData, error: latestRecipeError } = await supabaseClient
-            .from('Recipes')
-            .select('r_recipes_id')
-            .order('r_recipes_created_at', { ascending: false })
-            .limit(1)
-            .single();
-
-        if (latestRecipeError) {
-            console.error('Error fetching the latest recipe ID:', latestRecipeError);
-            return;
-        }
-
-        if (latestRecipeData) {
-            recipe_id = latestRecipeData.r_recipes_id;
-            console.log('Latest Recipe ID:', recipe_id);
-        } else {
-            console.error('No recipes found.');
-            return;
-        }
-        
-        const { data: recipeData, error: recipeError } = await supabaseClient
-            .from('Recipes')
-            .select('*')
-            .eq('r_recipes_id', recipe_id)
-            .single();
-
-        if (recipeError) {
-            console.error('Error fetching recipe:', recipeError);
-        } else {
-            recipe = recipeData;
-            console.log('Recipe:', recipe);
-        }
-        
-        const { data: ingredientsData, error: ingredientsError } = await supabaseClient
-            .from('recipe_ingredients')
-            .select('*')
-            .eq('r_recipes_id', recipe_id);
-
-        if (ingredientsError) {
-            console.error('Error fetching ingredients:', ingredientsError);
-        } else {            
-            recipeIngredients = ingredientsData.filter(ingredient => 
-                ingredient.ri_recipe_ingredients_name && 
-                ingredient.ri_recipe_ingredients_quantity && 
-                ingredient.ri_recipe_ingredients_unit
-            );
-            filteredIngredients = recipeIngredients;
-            console.log('Ingredients:', recipeIngredients);
-        }
-    });
-
-    function handleSearch() {
+    async function handleSearch() {
         if (searchQuery.trim() === '') {
-            filteredIngredients = recipeIngredients;
-        } else {
-            filteredIngredients = recipeIngredients.filter(ingredient =>
-                ingredient.ri_recipe_ingredients_name.toLowerCase().includes(searchQuery.toLowerCase())
-            );
+            searchResults = [];
+            return;
         }
+        
+        const { data, error } = await supabaseClient
+            .from('Recipes')
+            .select('*')
+            .ilike('r_recipes_title', `%${searchQuery}%`);
+
+        if (error) {
+            console.error('Error searching recipes:', error);
+            searchResults = [];
+        } else {
+            searchResults = data;
+        }
+    }
+
+    function handleViewRecipe(recipeId: number) {
+        // Navigate to a detailed recipe page, passing the recipeId
+        goto(`/selected_recipes/${recipeId}`);
     }
 </script>
 
-<h1 class="heading">Recipe Details</h1>
+<h1 class="heading">Search Recipes</h1>
+<input
+    type="text"
+    placeholder="Search recipes by title..."
+    bind:value={searchQuery}
+    on:input={handleSearch}
+/>
 
-{#if recipe}
-    <div>
-        <h2>{recipe.r_recipes_title}</h2>
-        <p><strong>Description:</strong> {recipe.r_recipes_description}</p>
-        <p><strong>Instructions:</strong> {recipe.r_recipes_instructions}</p>
-        <p><strong>Preparation Time:</strong> {recipe.r_recipes_preparation_time} mins</p>
-        <p><strong>Cooking Time:</strong> {recipe.r_recipes_cooking_time} mins</p>
-        <p><strong>Servings:</strong> {recipe.r_recipes_servings}</p>
-        <p><strong>Category ID:</strong> {recipe.c_category_id}</p>
-        
-        <h3 class="heading">Ingredients</h3>
-
-        <!-- Search Input -->
-        <input
-            type="text"
-            placeholder="Search ingredients..."
-            bind:value={searchQuery}
-            on:input={handleSearch}
-        />
-
-        {#if filteredIngredients.length > 0}
-            <ul>
-                {#each filteredIngredients as ingredient}
-                    <li>
-                        {ingredient.ri_recipe_ingredients_name} - {ingredient.ri_recipe_ingredients_quantity} {ingredient.ri_recipe_ingredients_unit}
-                    </li>
-                {/each}
-            </ul>
-        {:else}
-            <p>No ingredients found for this search.</p>
-        {/if}
-    </div>
+{#if searchResults.length > 0}
+    <ul>
+        {#each searchResults as recipe}
+            <li>
+                <h3>{recipe.r_recipes_title}</h3>
+                <p><strong>Description:</strong> {recipe.r_recipes_description}</p>
+                <p><strong>Instructions:</strong> {recipe.r_recipes_instructions}</p>
+                <p><strong>Preparation Time:</strong> {recipe.r_recipes_preparation_time} mins</p>
+                <p><strong>Cooking Time:</strong> {recipe.r_recipes_cooking_time} mins</p>
+                <p><strong>Servings:</strong> {recipe.r_recipes_servings}</p>
+                <button type="button" on:click={() => handleViewRecipe(recipe.r_recipes_id)}>
+                    View Recipe
+                </button>
+            </li>
+        {/each}
+    </ul>
 {:else}
-    <p>No recipe found.</p>
+    <p>No recipes found matching your search.</p>
 {/if}
