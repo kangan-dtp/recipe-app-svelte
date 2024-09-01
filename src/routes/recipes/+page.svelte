@@ -1,8 +1,7 @@
 <script lang="ts">
     import { createClient } from '@supabase/supabase-js';
     import '../../app.postcss';
-    import { goto } from '$app/navigation';
-    
+    import { goto } from '$app/navigation';    
 
     const supabaseURL = import.meta.env.VITE_SUPABASE_URL;
     const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
@@ -30,8 +29,7 @@
         }
     }
 
-    function handleViewRecipe(recipeId: number) {
-        
+    function handleViewRecipe(recipeId: number) {        
         goto(`/recipes/${recipeId}`);
     }
 </script>
@@ -54,7 +52,7 @@
                 <p><strong>Preparation Time:</strong> {recipe.r_recipes_preparation_time} mins</p>
                 <p><strong>Cooking Time:</strong> {recipe.r_recipes_cooking_time} mins</p>
                 <p><strong>Servings:</strong> {recipe.r_recipes_servings}</p>
-                <button type="button" on:click={() => handleViewRecipe(recipe.r_recipes_id)}>
+                <button id="cr" type="button" on:click={() => handleViewRecipe(recipe.r_recipes_id)}>
                     View Recipe
                 </button>
             </li>
@@ -63,3 +61,4 @@
 {:else}
     <p>No recipes found matching your search.</p>
 {/if}
+<button id="cr" type="button" on:click={() => goto('/')}>CANCEL</button>

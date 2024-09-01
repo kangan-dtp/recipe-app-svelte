@@ -2,10 +2,8 @@
         import { onMount } from 'svelte';
         import { createClient } from '@supabase/supabase-js';
         import { goto } from '$app/navigation';
-        import '../../../app.postcss';
-	    
+        import '../../../app.postcss';    
         
-
         const supabaseURL = import.meta.env.VITE_SUPABASE_URL;
         const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
         const supabaseClient = createClient(supabaseURL, supabaseAnonKey);
@@ -103,7 +101,6 @@
                     },
                 ]);
                 
-
             if (error) {
                 console.error('Error inserting ingredient:', error);
             } else {
@@ -112,7 +109,6 @@
         }
 
         alert('Recipe ingredients submitted successfully!');
-
         
         recipeIngredients = [
             { name: '', quantity: '', unit: '' }
@@ -154,7 +150,6 @@ async function addRecipeIngredientsData(event: MouseEvent) {
         console.error('Unexpected error:', error);
     }
 }
-
 
 </script>
 
@@ -233,9 +228,9 @@ async function addRecipeIngredientsData(event: MouseEvent) {
         <p>Click the ADD INGEDIENTS until you have entered your ingredients. When you are happy with your recipe press SUBMIT RECIPE</p>               
             
         <button id="cr" type="button" on:click={addRecipeIngredientsData}>ADD INGREDIENTS</button>              
-        <button id="cr" type="button" on:click={handleRecipeSubmission}>SUBMIT RECIPE</button>                   
-                
+        <button id="cr" type="button" on:click={handleRecipeSubmission}>SUBMIT RECIPE</button>                
             
+        <button id="cr" type="button" on:click={() => goto('/member_submissions/')}>CANCEL</button>        
 </form>                           
            
 

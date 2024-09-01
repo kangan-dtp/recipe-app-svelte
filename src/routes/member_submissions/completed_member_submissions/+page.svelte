@@ -2,6 +2,7 @@
     import { onMount } from "svelte";
     import { createClient } from '@supabase/supabase-js';
     import '../../../app.postcss';
+    import { goto } from '$app/navigation';
 
     const supabaseURL = import.meta.env.VITE_SUPABASE_URL;
     const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
@@ -62,7 +63,11 @@
         }
     });
 </script>
-
+<header>
+    <h1>Recipe Details</h1>
+    <button id="cr" type="button" on:click={() => goto('/member_submissions/')}>ANOTHER SUBMISSION</button>    
+    <button id="cr" type="button" on:click={() => goto('/')}>HOME</button> 
+</header>
 <h1 class="heading">Recipe Details</h1>
 
 {#if recipe}

@@ -69,6 +69,15 @@
 {#if recipe}
     <div>
         <h2>{recipe.r_recipes_title}</h2>
+
+        {#if recipe.r_recipes_image}
+            <img 
+                src={`/images/${recipe.r_recipes_image}`} 
+                alt={recipe.r_recipes_title} 
+                style="max-width: 100%; height: auto;" 
+            />
+        {/if}
+
         <p><strong>Description:</strong> {recipe.r_recipes_description}</p>
         <p><strong>Instructions:</strong> {recipe.r_recipes_instructions}</p>
         <p><strong>Preparation Time:</strong> {recipe.r_recipes_preparation_time} mins</p>

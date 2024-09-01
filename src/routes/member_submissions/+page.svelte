@@ -132,4 +132,6 @@
             </td>
         </tr>
     </table>
+
+    <button id="cr" type="button" on:click={() => goto('/')}>CANCEL</button>
 </form>
