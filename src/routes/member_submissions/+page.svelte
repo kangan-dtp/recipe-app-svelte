@@ -17,6 +17,7 @@
     let r_recipes_cooking_time: number = 0;
     let r_recipes_servings: number = 0;
     let selectedCategory: number | null = null;
+    let r_recipes_image: string = '';
     
 
     onMount(async () => {
@@ -104,6 +105,10 @@
         <tr>
             <td><label for="r_recipes_servings">Servings</label></td>
             <td><input type="number" id="r_recipes_servings" bind:value={r_recipes_servings} required></td>
+        </tr>
+        <tr>
+            <td><label for="r_recipes_image">Imgage File Name:</label></td>
+            <td><input type="text" id="r_recipes_image" bind:value={r_recipes_image} required></td>
         </tr>
         <tr>
             <td><label for="category">Category</label></td>
