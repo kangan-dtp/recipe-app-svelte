@@ -1,8 +1,9 @@
 <script lang="ts">
+	import { get } from 'svelte/store';
     import { onMount } from "svelte";
     import { createClient } from '@supabase/supabase-js';
     import '../../../app.postcss';
-    import { goto } from '$app/navigation';
+    import { goto } from '$app/navigation';    
 
     const supabaseURL = import.meta.env.VITE_SUPABASE_URL;
     const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;

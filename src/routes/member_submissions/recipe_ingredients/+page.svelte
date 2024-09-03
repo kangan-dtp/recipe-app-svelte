@@ -23,7 +23,7 @@
         let selectedCategory: number | null = null;    
 
     onMount(async () => {
-       
+
         const { data: recentRecipeData, error: recentRecipeError } = await supabaseClient
             .from('Recipes')
             .select('*')
@@ -42,7 +42,7 @@
             r_recipes_cooking_time = recentRecipe.r_recipes_cooking_time;
             r_recipes_servings = recentRecipe.r_recipes_servings;
             selectedCategory = recentRecipe.c_category_id;
-            console.log('Most Recent Recipe:', recentRecipe);
+            console.log('Most Recent Recipe:', recentRecipe); //bug fix...if database drops out
         }
 
         const { data: categoriesData, error: categoriesError } = await supabaseClient
