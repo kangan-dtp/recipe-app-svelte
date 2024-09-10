@@ -1,158 +1,143 @@
 <script lang="ts">
-    import { createClient } from '@supabase/supabase-js';
-    import '../app.postcss';
-    import { onMount } from 'svelte';
+  import { onMount } from 'svelte';
+  import { fetchAndFilterRecipes } from '$lib/fetchandfilterfunctions';
+  import { goto } from '$app/navigation';
+  import { isLoggedIn } from '$lib/authStore';
 
-    
-    const supabaseURL = 'https://ckzdwxkzhuehnecisehw.supabase.co';
-    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNremR3eGt6aHVlaG5lY2lzZWh3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjIzODg5MTYsImV4cCI6MjAzNzk2NDkxNn0.lfNhTrJUP9p8W_-dg7t-pxwKPyGVFGssNwuZ7yL6pqs';
-    
-   
-    const supabaseClient = createClient(supabaseURL, supabaseKey);
+  const sections = [
+    { name: 'Breakfast', image: '/images/breakfast.jpg', link: '/recipepages/breakfast' },
+    { name: 'Lunch', image: '/images/lunch.jpg', link: '/recipepages/lunch' },
+    { name: 'Dinner', image: '/images/dinner.jpg', link: '/recipepages/dinner' },
+    { name: 'Snacks', image: '/images/snacks.jpg', link: '/recipepages/snacks' },
+  ];
 
-    let Recipes: any[] = []; 
-    let Categories: any[] = []; 
-    
-    let r_recipes_title: string = '';
-    let r_recipes_description: string = '';
-    let r_recipes_instructions: string = '';
-    let r_recipes_preparation_time: number = 0;
-    let r_recipes_cooking_time: number = 0;
-    let r_recipes_servings: number = 0;
-    let selectedCategory: number | null = null; 
+  // Search functionality
+  let searchKeyword = '';
+  let recipes = [];
+ 
 
-    // Fetch recipes and categories from the database when the component mounts
-    onMount(async () => {
-        // Fetch recipes
-        const { data: recipesData, error: recipesError } = await supabaseClient
-            .from('Recipes')
-            .select('r_recipes_title, r_recipes_description, r_recipes_instructions, r_recipes_preparation_time, r_recipes_cooking_time, r_recipes_servings, c_category_id');
+  async function searchRecipes() {
+    recipes = await fetchAndFilterRecipes(searchKeyword);
+  }
 
-        if (recipesError) {
-            console.error('Error fetching recipes:', recipesError);
+     // Function to handle navigation to contributions page
+     function navigateToContributions() {
+        if ($isLoggedIn) {  // Check if the user is logged in using the reactive store
+            goto('/contributions');
         } else {
-            Recipes = recipesData; // Update the Recipes variable with the fetched data
+            alert('You must be logged in to add a new recipe');
         }
-
-        // Fetch categories
-        const { data: categoriesData, error: categoriesError } = await supabaseClient
-            .from('Category')
-            .select('*'); 
-
-        if (categoriesError) {
-            console.error('Error fetching categories:', categoriesError);
-        } else {
-            Categories = categoriesData; 
-            console.log('Categories:', Categories); 
-        }
-    });
-    
-    async function insertRecipe() {
-        const { data, error } = await supabaseClient
-            .from('Recipes')
-            .insert([{
-                r_recipes_title,
-                r_recipes_description,
-                r_recipes_instructions,
-                r_recipes_preparation_time,
-                r_recipes_cooking_time,
-                r_recipes_servings,
-                c_category_id: selectedCategory
-            }]);
-
-        if (error) {
-            console.error('Error inserting recipe:', error);
-        } else {
-            if (data) {
-                Recipes = [...Recipes, ...data]; 
-            }
-            
-            r_recipes_title = '';
-            r_recipes_description = '';
-            r_recipes_instructions = '';
-            r_recipes_preparation_time = 0;
-            r_recipes_cooking_time = 0;
-            r_recipes_servings = 0;
-            selectedCategory = null; 
-        }
-    }
-
-    // Handle category selection
-    function selectCategory(categoryId: number) {
-        selectedCategory = categoryId;
     }
 </script>
 
-<h1>Recipes</h1>
+<div class="imagecontainer">
+  <section class="grid grid-cols-2 md:grid-cols-4 gap-4">
+    {#each sections as section}
+      <a 
+        href={section.link} 
+        class="relative flex items-center justify-center overflow-hidden rounded-lg transition-transform transform hover:scale-105 group"
+      >
+        <img 
+          class="w-full h-80 object-cover rounded-lg" 
+          src={section.image} 
+          alt={section.name}
+        />
+        <div class="title-overlay group-hover:opacity-100">
+          <h2 class="text-white text-2xl font-bold">{section.name}</h2>
+        </div>
+      </a>
+    {/each}
+  </section>
+</div>
 
-<form on:submit|preventDefault={insertRecipe}>
-    <table>
-        <tr>
-            <td><label for="r_recipes_title">Recipe Title</label></td>
-            <td><input type="text" id="r_recipes_title" bind:value={r_recipes_title} required></td>
-        </tr>
-        <tr>
-            <td><label for="r_recipes_description">Recipe Description</label></td>
-            <td><input type="text" id="r_recipes_description" bind:value={r_recipes_description} required></td>
-        </tr>
-        <tr>
-            <td><label for="r_recipes_instructions">Instructions</label></td>
-            <td><input type="text" id="r_recipes_instructions" bind:value={r_recipes_instructions} required></td>
-        </tr>
-        <tr>
-            <td><label for="r_recipes_preparation_time">Preparation Time (mins)</label></td>
-            <td><input type="number" id="r_recipes_preparation_time" bind:value={r_recipes_preparation_time} required></td>
-        </tr>
-        <tr>
-            <td><label for="r_recipes_cooking_time">Cooking Time (mins)</label></td>
-            <td><input type="number" id="r_recipes_cooking_time" bind:value={r_recipes_cooking_time} required></td>
-        </tr>
-        <tr>
-            <td><label for="r_recipes_servings">Servings</label></td>
-            <td><input type="number" id="r_recipes_servings" bind:value={r_recipes_servings} required></td>
-        </tr>
-        <tr>
-            <td><label>Category</label></td>
-            <td>
-                <div>
-                    {#each [1, 2, 3, 4] as categoryId}
-                        <label>
-                            <input
-                                type="radio"
-                                name="category"
-                                value={categoryId}
-                                checked={selectedCategory === categoryId}
-                                on:change={() => selectCategory(categoryId)}
-                            />
-                            {categoryId}
-                        </label>
-                    {/each}
-                </div>
-            </td>
-        </tr>
-        <tr>
-            <td colspan="2">
-                <button type="submit">Insert Recipe</button>
-            </td>
-        </tr>
-    </table>
-</form>
+<!-- Buttons -->
+<div class="mt-8 flex justify-center space-x-4">
+<button on:click={navigateToContributions} class="btn variant-filled bg-green-500 text-white px-4 py-2 rounded-md">
+  Add Your Own Recipe
+</button>
 
-{#if Recipes.length > 0}
-    <h2>Recipes List</h2>
-    <ul>
-        {#each Recipes as recipe}
-            <li>
-                <strong>{recipe.r_recipes_title}</strong> - {recipe.r_recipes_description} <br>
-                Instructions: {recipe.r_recipes_instructions} <br>
-                Prep Time: {recipe.r_recipes_preparation_time} mins <br>
-                Cook Time: {recipe.r_recipes_cooking_time} mins <br>
-                Servings: {recipe.r_recipes_servings} <br>
-                Category ID: {recipe.c_category_id} <br>
-                Category Name: {Categories.find(category => category.c_category_id === recipe.c_category_id)?.c_category_name}
-            </li>
-        {/each}
+  <a href="/recipepages/allrecipes" class="btn variant-filled bg-green-500 text-white px-4 py-2 rounded-md">View All Recipes</a>
+</div>
+
+<!-- Search Bar -->
+<div class="searchbarcontainer mt-8">
+  <input 
+    type="text" 
+    bind:value={searchKeyword} 
+    class="input p-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500" 
+    placeholder="Search all recipes" 
+  />
+  <button 
+    on:click={searchRecipes} 
+    class="btn variant-filled bg-green-500 text-white px-4 py-2 rounded-md"
+  >
+    Search
+  </button>
+</div>
+
+<!-- Recipe Search Results -->
+{#if recipes.length > 0}
+  <div class="mt-4">
+    <h2 class="text-xl font-semibold text-white">Search Results:</h2>
+    <ul class="list-disc pl-5 mt-2">
+      {#each recipes as recipe}
+        <li><a href={`/recipes/${recipe.id}`} class="text-white hover:underline">{recipe.title}</a></li>
+      {/each}
     </ul>
-{:else}
-    <p>No Recipes</p>
+  </div>
 {/if}
+
+<style>
+  .btn {
+    display: inline-block;
+    text-align: center;
+    border-radius: 9999px; /* Fully rounded button */
+    padding: 0.75rem 1.5rem; /* Adjust padding as needed */
+  }
+
+  .searchbarcontainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    padding: 16px;
+    box-sizing: border-box;
+  }
+
+  .searchbarcontainer .input {
+    width: 100%;
+    max-width: 300px;
+  }
+
+  .searchbarcontainer .btn {
+    margin-top: 8px;
+  }
+
+  .imagecontainer {
+    margin-top: 100px;
+    display: flex;
+    justify-content: center;
+  }
+
+  .title-overlay {
+    position: absolute;
+    top: 10%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    padding: 10px;
+    text-align: center;
+    opacity: 0;
+    transition: opacity 0.3s;
+    width: 100%; /* Make sure it covers the full width of the image */
+  }
+
+  .title-overlay h2 {
+    margin: 0;
+    font-size: 1.25rem; /* Smaller text size */
+    color: white;
+  }
+
+  .group:hover .title-overlay {
+    opacity: 1;
+  }
+</style>
