@@ -1,10 +1,10 @@
 <script lang="ts">
     import { onMount } from 'svelte';
-    import type { Recipe } from '$lib/types';
+    import type { Recipe, CarouselRecipe } from '$lib/types'; // Import the CarouselRecipe type
     import { fetchAllRecipes, fetchAndFilterRecipes } from '$lib/fetchandfilterfunctions';
     import { goto } from '$app/navigation'; // For navigation to the recipe details
 
-    let recipes: Recipe[] = [];
+    let recipes: CarouselRecipe[] = [];
     let searchQuery: string = '';
     let error: string | null = null;
 
@@ -66,7 +66,7 @@
                         <td>{recipe.title}</td>
                         <td>{recipe.description}</td>
                         <td>
-                            <button on:click={() => viewRecipe(recipe.id)} class="btn btn-primary">View Recipe</button>
+                            <button class="btn btn-primary">View Recipe</button>
                         </td>
                     </tr>
                 {/each}
