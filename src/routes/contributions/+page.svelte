@@ -1,8 +1,12 @@
-<script lang="ts">
-    import supabase from "$lib/supabase";
+<script lang="ts">    
     import { onMount } from 'svelte';
+    import { createClient } from '@supabase/supabase-js';
+    
+    const supabaseURL = import.meta.env.VITE_SUPABASE_URL;
+    const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+    const supabase = createClient(supabaseURL, supabaseAnonKey);
   
-    let categories = [];
+    let categories: { c_category_id: string, c_category_name: string }[] = [];
     let recipeTitle = '';
     let recipeDescription = '';
     let recipeInstructions = '';
@@ -85,7 +89,7 @@
   
         alert('Recipe and ingredients submitted successfully!');
       } catch (error) {
-        console.error('Error submitting recipe:', error.message);
+        console.error('Error submitting recipe:', (error as Error).message);
         alert('Error submitting the recipe. Please try again.');
       }
     }

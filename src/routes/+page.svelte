@@ -1,8 +1,13 @@
-<script lang="ts">
+<script lang="ts">	
+  import { createClient } from '@supabase/supabase-js';  ;
   import { onMount } from 'svelte';
   import { fetchAndFilterRecipes } from '$lib/fetchandfilterfunctions';
   import { goto } from '$app/navigation';
   import { isLoggedIn } from '$lib/authStore';
+
+  const supabaseURL = import.meta.env.VITE_SUPABASE_URL;
+  const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+  const supabaseClient = createClient(supabaseURL, supabaseAnonKey);
 
   const sections = [
     { name: 'Breakfast', image: '/images/breakfast.jpg', link: '/recipepages/breakfast' },
@@ -13,7 +18,7 @@
 
   // Search functionality
   let searchKeyword = '';
-  let recipes = [];
+  let recipes: { id: number, title: string }[] = [];
  
 
   async function searchRecipes() {
@@ -23,7 +28,7 @@
      // Function to handle navigation to contributions page
      function navigateToContributions() {
         if ($isLoggedIn) {  // Check if the user is logged in using the reactive store
-            goto('/contributions');
+            goto('/contributions/member_submissions');
         } else {
             alert('You must be logged in to add a new recipe');
         }
@@ -56,7 +61,7 @@
   Add Your Own Recipe
 </button>
 
-  <a href="/recipepages/allrecipes" class="btn variant-filled bg-green-500 text-white px-4 py-2 rounded-md">View All Recipes</a>
+  <a href="/recipes" class="btn variant-filled bg-green-500 text-white px-4 py-2 rounded-md">View All Recipes</a>
 </div>
 
 <!-- Search Bar -->
