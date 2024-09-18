@@ -46,8 +46,8 @@
             <tbody>
               {#each recipes as recipe, i}
               <tr class={i % 2 === 0 ? '' : 'table-row-checked'}>
-                  <td>{recipe.r_recipes_title || 'No title'}</td>
-                  <td>{recipe.r_recipes_description || 'No description'}</td>
+                  <td>{recipe.title || 'No title'}</td>
+                  <td>{recipe.description || 'No description'}</td>
                   <td>
                       <button on:click={() => viewRecipe(recipe.id)} class="btn btn-primary">View Recipe</button>
                   </td>
